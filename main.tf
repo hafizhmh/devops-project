@@ -19,8 +19,24 @@ resource "google_compute_network" "vpc_network" {
   name = "terraform-network"
 }
 
-resource "google_compute_instance" "vm_instance" {
-  name         = "nodeabc"
+resource "google_compute_instance" "alpha_server" {
+  name         = "alpha-server"
+  machine_type = "f1-micro"
+  tags         = ["ssh", "alphaserver"]
+  boot_disk {
+    initialize_params {
+      image = "ubuntu-os-cloud/ubuntu-2004-lts"
+    }
+  }
+  network_interface {
+    network = google_compute_network.vpc_network.name
+    access_config {
+    }
+  }
+}
+
+resource "google_compute_instance" "alpha_client" {
+  name         = "alpha-client-1"
   machine_type = "f1-micro"
   tags         = ["ssh", "alphaclient"]
   boot_disk {
@@ -38,22 +54,22 @@ resource "google_compute_instance" "vm_instance" {
 }
 
 resource "google_compute_firewall" "ssh-http-rule" {
-  name = "terraform-fw"
+  name    = "terraform-fw"
   network = google_compute_network.vpc_network.name
   allow {
     protocol = "tcp"
-    ports = ["22", "80"]
+    ports    = ["22", "80"]
   }
-  target_tags = ["alphaclient", "alphaserver"]
+  target_tags   = ["alphaclient", "alphaserver"]
   source_ranges = ["0.0.0.0/0"]
 }
 output "ip_abc" {
-  value = google_compute_instance.vm_instance.network_interface.0.access_config.0.nat_ip
+  value = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
 }
 
 data "template_file" "startup_script" {
   template = file("startupscript.sh")
   vars = {
-    echo_ip = "test123"
+    echo_ip = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
   }
 }
