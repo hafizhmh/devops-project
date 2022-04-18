@@ -2,3 +2,4 @@
 *.json
 *.tfstate
 *.lock.*
+*.tfvars
