@@ -35,15 +35,23 @@ resource "google_compute_instance" "alpha_server" {
   }
 }
 
-resource "google_compute_instance" "alpha_client" {
-  name         = "alpha-client-1"
+resource "google_compute_instance" "alpha-client-" {
+  count        = var.node_count
+  name         = "alpha-client-${count.index}"
   machine_type = "f1-micro"
+  zone         = var.zone
   tags         = ["ssh", "alphaclient"]
+
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2004-lts"
     }
   }
+  attached_disk {
+    source      = element(google_compute_disk.alpha-client-disk-.*.self_link, count.index)
+    device_name = element(google_compute_disk.alpha-client-disk-.*.name, count.index)
+  }
+
   network_interface {
     network = google_compute_network.vpc_network.name
     access_config {
@@ -51,6 +59,14 @@ resource "google_compute_instance" "alpha_client" {
   }
   # metadata_startup_script = file(var.startup_file)
   metadata_startup_script = data.template_file.startup_script.rendered
+}
+
+resource "google_compute_disk" "alpha-client-disk-" {
+  count = var.node_count
+  name  = "alpha-client-disk-${count.index}-data"
+  type  = "pd-standard"
+  zone  = var.zone
+  size  = "5"
 }
 
 resource "google_compute_firewall" "ssh-http-rule" {
