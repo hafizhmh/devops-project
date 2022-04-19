@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 from __future__ import print_function
-from distutils.sysconfig import customize_compiler
 from flask import Flask, redirect, url_for, request, jsonify
 app = Flask(__name__)
 
@@ -26,29 +25,43 @@ def create_database(cursor):
 
 ##########
 
-@app.route('/success/<name>')
-def success(name):
-    return f'welcome {name}'
-
 @app.route('/hostname_count',methods = ['POST', 'GET'])
-def login():
-    if request.method == 'POST':
-      json = request.json
-      return f'hei {json["hostname"]}'
-    else:
-      cnx = mysql.connector.connect(
-        host="34.83.139.11",
-        user="admin",
-        password="aaAA11!!",
-        database = DB_NAME
-      )
+def hostname_count():
+  cnx = mysql.connector.connect(
+    host="34.83.139.11",
+    user="admin",
+    password="aaAA11!!",
+    database = DB_NAME
+  )
+  if request.method == 'POST':
+    json = request.json
+    if 'hostname' not in json:
+      res = {"error":"Body must contains 'hostname' field"}
+      return res, 400
+    print(f"""{json["hostname"]}""")
+    try:
+      print("a")
       cursor = cnx.cursor()
-      query = f'SELECT hostname, count FROM {TABLE_NAME};'
+      print("b")
+      query = f"""
+      INSERT INTO {TABLE_NAME} (hostname, count)
+      VALUES ("{json["hostname"]}",1)
+      ON DUPLICATE KEY UPDATE count = VALUES(count)+1
+      """
       cursor.execute(query)
-      res_tmp = {}
-      for hostname, count in cursor:
-        res_tmp[hostname] = count
-      return jsonify(res_tmp)
+      cnx.commit()
+      cursor.close()
+      return {'status':'ok'}
+    except Exception as e:
+      return {'error':e}, 500
+  else:
+    cursor = cnx.cursor()
+    query = f'SELECT hostname, count FROM {TABLE_NAME};'
+    cursor.execute(query)
+    res_tmp = {}
+    for hostname, count in cursor:
+      res_tmp[hostname] = count
+    return jsonify(res_tmp)
 
 
 
@@ -72,8 +85,7 @@ if __name__ == '__main__':
       cursor.execute(
         f"""
         CREATE TABLE {TABLE_NAME}
-        (entryID INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(entryID),
-        hostname VARCHAR(255), count INT);
+        (hostname VARCHAR(255), PRIMARY KEY(hostname), count INT);
         """
       )
   except mysql.connector.Error as err:
