@@ -9,10 +9,15 @@ terraform {
 
 provider "google" {
   credentials = file(var.credentials_file)
-
-  project = var.project
-  region  = var.region
-  zone    = var.zone
+  project     = var.project
+  region      = var.region
+  zone        = var.zone
+}
+provider "google-beta" {
+  credentials = file(var.credentials_file)
+  project     = var.project
+  region      = var.region
+  zone        = var.zone
 }
 
 resource "google_compute_network" "vpc_network" {
@@ -88,4 +93,32 @@ data "template_file" "startup_script" {
   vars = {
     echo_ip = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
   }
+}
+
+resource "google_sql_database_instance" "fintax-mysql-server" {
+  provider         = google-beta
+  name             = "fintax-mysql-server"
+  database_version = "MYSQL_8_0"
+  root_password    = var.database_admin_password
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled = true
+      authorized_networks {
+        name = "all"
+        value = "0.0.0.0/0"
+      }
+    }
+  }
+}
+
+resource "google_sql_database" "fintax-mysql-db" {
+  name     = "fintax-mysql-db"
+  instance = google_sql_database_instance.fintax-mysql-server.name
+}
+
+resource "google_sql_user" "fintax-mysql-users" {
+  name     = "admin"
+  instance = google_sql_database_instance.fintax-mysql-server.name
+  password = var.database_admin_password
 }
