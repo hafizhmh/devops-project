@@ -5,7 +5,7 @@ export ECHO_IP=${echo_ip}
 sudo cat << EOF > $scriptpath
 #!/bin/bash
 echo "\$(hostname) - \$(date) - $ECHO_IP" >> ~/sshres.txt
-curl -X POST https://$ECHO_IP/hostname_count \
+curl -X POST http://$ECHO_IP/hostname_count \
     -H 'Content-Type: application/json' \
     -d '{"hostname":"$(hostname)"}' >> ~/curlres.txt &
 echo "\n" >> ~/curlsres.txt

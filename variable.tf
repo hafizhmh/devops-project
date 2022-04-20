@@ -14,5 +14,5 @@ variable "zone" {
 }
 
 variable "node_count" {
-  default = "0"
+  default = "3"
 }
