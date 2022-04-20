@@ -27,7 +27,7 @@ resource "google_compute_network" "vpc_network" {
 resource "google_compute_instance" "alpha_server" {
   name         = "alpha-server"
   machine_type = "f1-micro"
-  tags         = ["ssh", "alphaserver"]
+  tags         = ["ssh", "alphaserver", "http-server"]
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-2004-lts"
