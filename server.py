@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 from __future__ import print_function
 from flask import Flask, redirect, url_for, request, jsonify
-app = Flask(__name__)
-
 import mysql.connector
 from mysql.connector import errorcode
+
+import os
+SQL_IP = os.environ["SQL_IP"]
+
+app = Flask(__name__)
 
 cnx = mysql.connector.connect(
   host="34.83.139.11",

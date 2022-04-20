@@ -38,6 +38,7 @@ resource "google_compute_instance" "alpha_server" {
     access_config {
     }
   }
+  metadata_startup_script = data.template_file.startup_script_server.rendered
 }
 
 resource "google_compute_instance" "alpha-client-" {
@@ -62,8 +63,7 @@ resource "google_compute_instance" "alpha-client-" {
     access_config {
     }
   }
-  # metadata_startup_script = file(var.startup_file)
-  metadata_startup_script = data.template_file.startup_script.rendered
+  metadata_startup_script = data.template_file.startup_script_client.rendered
 }
 
 resource "google_compute_disk" "alpha-client-disk-" {
@@ -88,16 +88,23 @@ output "ip_abc" {
   value = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
 }
 
-data "template_file" "startup_script" {
-  template = file("startupscript.sh")
+data "template_file" "startup_script_client" {
+  template = file("startup-clint.sh")
   vars = {
     echo_ip = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
   }
 }
 
-resource "google_sql_database_instance" "fintax-mysql-server" {
+data "template_file" "startup_script_server" {
+  template = file("startup-server.sh")
+  vars = {
+    sql_ip = google_sql_database_instance.fintax_mysql_server.ip_address.0.ip_address
+  }
+}
+
+resource "google_sql_database_instance" "fintax_mysql_server" {
   provider         = google-beta
-  name             = "fintax-mysql-server"
+  name             = "fintax_mysql_server"
   database_version = "MYSQL_8_0"
   root_password    = var.database_admin_password
   settings {
@@ -114,11 +121,11 @@ resource "google_sql_database_instance" "fintax-mysql-server" {
 
 resource "google_sql_database" "fintax-mysql-db" {
   name     = "fintax-mysql-db"
-  instance = google_sql_database_instance.fintax-mysql-server.name
+  instance = google_sql_database_instance.fintax_mysql_server.name
 }
 
 resource "google_sql_user" "fintax-mysql-users" {
   name     = "admin"
-  instance = google_sql_database_instance.fintax-mysql-server.name
+  instance = google_sql_database_instance.fintax_mysql_server.name
   password = var.database_admin_password
 }

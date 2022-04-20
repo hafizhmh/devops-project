@@ -4,9 +4,6 @@ variable "credentials_file" {}
 
 variable "database_admin_password" {}
 
-variable "startup_file" {
-  default = "startupscript.sh"
-}
 
 variable "region" {
   default = "us-central1"
