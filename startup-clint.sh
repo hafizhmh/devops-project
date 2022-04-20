@@ -7,7 +7,7 @@ sudo cat << EOF > $scriptpath
 echo "\$(hostname) - \$(date) - $ECHO_IP" >> ~/sshres.txt
 curl -X POST https://$ECHO_IP/hostname_count \
     -H 'Content-Type: application/json' \
-    -d '{"hostname":"$(hostname)"}' >> ~/curlres.txt
+    -d '{"hostname":"$(hostname)"}' >> ~/curlres.txt &
 echo "\n" >> ~/curlsres.txt
 EOF
 

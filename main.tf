@@ -88,6 +88,10 @@ output "ip_abc" {
   value = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
 }
 
+output "sql_ip" {
+  value = google_sql_database_instance.mysql-server.ip_address.0.ip_address
+}
+
 data "template_file" "startup_script_client" {
   template = file("startup-clint.sh")
   vars = {
@@ -120,7 +124,7 @@ resource "google_sql_database_instance" "mysql-server" {
 }
 
 resource "google_sql_database" "fintax-mysql-db" {
-  name     = "fintax-mysql-db"
+  name     = "fintax_mysql_db"
   instance = google_sql_database_instance.mysql-server.name
 }
 

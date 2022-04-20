@@ -4,13 +4,11 @@ from flask import Flask, redirect, url_for, request, jsonify
 import mysql.connector
 from mysql.connector import errorcode
 
-import os
-SQL_IP = os.environ["SQL_IP"]
-
 app = Flask(__name__)
-
+with open('sql_ip.txt','r') as f:
+  sql_ip = f.readline()
 cnx = mysql.connector.connect(
-  host="34.83.139.11",
+  host="34.82.146.43",
   user="admin",
   password="aaAA11!!",
 )
@@ -31,7 +29,7 @@ def create_database(cursor):
 @app.route('/hostname_count',methods = ['POST', 'GET'])
 def hostname_count():
   cnx = mysql.connector.connect(
-    host="34.83.139.11",
+    host=sql_ip,
     user="admin",
     password="aaAA11!!",
     database = DB_NAME
