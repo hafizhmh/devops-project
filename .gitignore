@@ -4,3 +4,4 @@ venv/
 *.tfstate*
 *.lock.*
 *.tfvars
+sql_ip.txt
