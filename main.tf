@@ -98,13 +98,13 @@ data "template_file" "startup_script_client" {
 data "template_file" "startup_script_server" {
   template = file("startup-server.sh")
   vars = {
-    sql_ip = google_sql_database_instance.fintax_mysql_server.ip_address.0.ip_address
+    sql_ip = google_sql_database_instance.mysql-server.ip_address.0.ip_address
   }
 }
 
-resource "google_sql_database_instance" "fintax_mysql_server" {
+resource "google_sql_database_instance" "mysql-server" {
   provider         = google-beta
-  name             = "fintax_mysql_server"
+  name             = "mysql-server"
   database_version = "MYSQL_8_0"
   root_password    = var.database_admin_password
   settings {
@@ -121,11 +121,11 @@ resource "google_sql_database_instance" "fintax_mysql_server" {
 
 resource "google_sql_database" "fintax-mysql-db" {
   name     = "fintax-mysql-db"
-  instance = google_sql_database_instance.fintax_mysql_server.name
+  instance = google_sql_database_instance.mysql-server.name
 }
 
 resource "google_sql_user" "fintax-mysql-users" {
   name     = "admin"
-  instance = google_sql_database_instance.fintax_mysql_server.name
+  instance = google_sql_database_instance.mysql-server.name
   password = var.database_admin_password
 }
