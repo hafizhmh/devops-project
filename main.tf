@@ -74,12 +74,12 @@ resource "google_compute_disk" "alpha-client-disk-" {
   size  = "5"
 }
 
-resource "google_compute_firewall" "ssh-http-rule" {
+resource "google_compute_firewall" "terraform-fw" {
   name    = "terraform-fw"
   network = google_compute_network.vpc_network.name
   allow {
     protocol = "tcp"
-    ports    = ["22", "80"]
+    ports    = ["22"]
   }
   target_tags   = ["alphaclient", "alphaserver"]
   source_ranges = ["0.0.0.0/0"]
@@ -89,7 +89,7 @@ output "ip_abc" {
 }
 
 output "sql_ip" {
-  value = google_sql_database_instance.mysql-server.ip_address.0.ip_address
+  value = google_sql_database_instance.mysql-instance.ip_address.0.ip_address
 }
 
 data "template_file" "startup_script_client" {
@@ -102,15 +102,16 @@ data "template_file" "startup_script_client" {
 data "template_file" "startup_script_server" {
   template = file("startup-server.sh")
   vars = {
-    sql_ip = google_sql_database_instance.mysql-server.ip_address.0.ip_address
+    sql_ip = google_sql_database_instance.mysql-instance.ip_address.0.ip_address
   }
 }
 
-resource "google_sql_database_instance" "mysql-server" {
+resource "google_sql_database_instance" "mysql-instance" {
   provider         = google-beta
-  name             = "mysql-server"
+  name             = "mysql-instance"
   database_version = "MYSQL_8_0"
   root_password    = var.database_admin_password
+  deletion_protection = false
   settings {
     tier = "db-f1-micro"
     ip_configuration {
@@ -125,11 +126,11 @@ resource "google_sql_database_instance" "mysql-server" {
 
 resource "google_sql_database" "fintax-mysql-db" {
   name     = "fintax_mysql_db"
-  instance = google_sql_database_instance.mysql-server.name
+  instance = google_sql_database_instance.mysql-instance.name
 }
 
 resource "google_sql_user" "fintax-mysql-users" {
   name     = "admin"
-  instance = google_sql_database_instance.mysql-server.name
+  instance = google_sql_database_instance.mysql-instance.name
   password = var.database_admin_password
 }

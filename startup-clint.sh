@@ -1,6 +1,6 @@
 #!/bin/bash
-# scriptpath='/etc/profile.d/startup-client.sh'
-scriptpath='/root/startup-client.sh'
+scriptpath='/etc/profile.d/startup-client.sh'
+# scriptpath='/root/startup-client.sh'
 export ECHO_IP=${echo_ip}
 
 echo ForceCommand $scriptpath >> /etc/ssh/sshd_config.d/postlogin.sh

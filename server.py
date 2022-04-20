@@ -8,7 +8,7 @@ app = Flask(__name__)
 with open('sql_ip.txt','r') as f:
   sql_ip = f.readline()
 cnx = mysql.connector.connect(
-  host="34.82.146.43",
+  host=sql_ip,
   user="admin",
   password="aaAA11!!",
 )
