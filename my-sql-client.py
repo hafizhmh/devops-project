@@ -35,32 +35,44 @@ def hostname_count():
   )
   if request.method == 'POST':
     json = request.json
+    hostname = json["hostname"]
     if 'hostname' not in json:
       res = {"error":"Body must contains 'hostname' field"}
       return res, 400
-    print(f"""{json["hostname"]}""")
     try:
-      print("a")
       cursor = cnx.cursor()
-      print("b")
       query = f"""
       INSERT INTO {TABLE_NAME} (hostname, count)
-      VALUES ("{json["hostname"]}",1)
-      ON DUPLICATE KEY UPDATE count = VALUES(count)+1
+      VALUES ("{hostname}",1)
+      ON DUPLICATE KEY UPDATE count = count + 1
       """
       cursor.execute(query)
       cnx.commit()
       cursor.close()
       return {'status':'ok'}
+
+      cursor = cnx.cursor()
+      query = f'SELECT hostname, count FROM {TABLE_NAME} WHERE hostname = "{hostname}"'
+      cursor.execute(query)
+      res_tmp = {}
+      for hostname, count in cursor:
+        res_tmp[hostname] = count
+      cursor.close()
+      cnx.close()
+      return jsonify(res_tmp)
     except Exception as e:
+      cursor.close()
+      cnx.close()
       return {'error':e}, 500
   else:
     cursor = cnx.cursor()
-    query = f'SELECT hostname, count FROM {TABLE_NAME};'
+    query = f'SELECT hostname, count FROM {TABLE_NAME}'
     cursor.execute(query)
     res_tmp = {}
     for hostname, count in cursor:
       res_tmp[hostname] = count
+    cursor.close()
+    cnx.close()
     return jsonify(res_tmp)
 
 
