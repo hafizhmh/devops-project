@@ -48,10 +48,7 @@ def hostname_count():
       """
       cursor.execute(query)
       cnx.commit()
-      cursor.close()
-      return {'status':'ok'}
 
-      cursor = cnx.cursor()
       query = f'SELECT hostname, count FROM {TABLE_NAME} WHERE hostname = "{hostname}"'
       cursor.execute(query)
       res_tmp = {}
