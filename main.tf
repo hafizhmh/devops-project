@@ -20,9 +20,9 @@ provider "google-beta" {
   zone        = var.zone
 }
 
-resource "google_sql_database_instance" "sql-db-instance-1" {
+resource "google_sql_database_instance" "sql-db-instance" {
   provider         = google-beta
-  name             = "sql-db-instance-1"
+  name             = "sql-db-instance"
   database_version = "MYSQL_8_0"
   root_password    = var.database_admin_password
   deletion_protection = false
@@ -40,12 +40,12 @@ resource "google_sql_database_instance" "sql-db-instance-1" {
 
 resource "google_sql_database" "fintax-mysql-db" {
   name     = "fintax_mysql_db"
-  instance = google_sql_database_instance.sql-db-instance-1.name
+  instance = google_sql_database_instance.sql-db-instance.name
 }
 
 resource "google_sql_user" "fintax-mysql-users" {
   name     = "admin"
-  instance = google_sql_database_instance.sql-db-instance-1.name
+  instance = google_sql_database_instance.sql-db-instance.name
   password = var.database_admin_password
 }
 
@@ -150,7 +150,7 @@ output "api_path" {
 }
 
 output "sql_ip" {
-  value = google_sql_database_instance.sql-db-instance-1.ip_address.0.ip_address
+  value = google_sql_database_instance.sql-db-instance.ip_address.0.ip_address
 }
 
 data "template_file" "startup_script_client" {
@@ -163,7 +163,7 @@ data "template_file" "startup_script_client" {
 data "template_file" "startup_script_server" {
   template = file("startup-server.sh")
   vars = {
-    sql_ip = google_sql_database_instance.sql-db-instance-1.ip_address.0.ip_address
+    sql_ip = google_sql_database_instance.sql-db-instance.ip_address.0.ip_address
     bucket_name = var.bucket_name
   }
 }
