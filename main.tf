@@ -20,6 +20,36 @@ provider "google-beta" {
   zone        = var.zone
 }
 
+resource "google_sql_database_instance" "sql-db-instance" {
+  provider         = google-beta
+  name             = "sql-db-instance"
+  database_version = "MYSQL_8_0"
+  root_password    = var.database_admin_password
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+    ip_configuration {
+      ipv4_enabled = true
+      authorized_networks {
+        name = "all"
+        value = "0.0.0.0/0"
+      }
+    }
+  }
+}
+
+resource "google_sql_database" "fintax-mysql-db" {
+  name     = "fintax_mysql_db"
+  instance = google_sql_database_instance.sql-db-instance.name
+}
+
+resource "google_sql_user" "fintax-mysql-users" {
+  name     = "admin"
+  instance = google_sql_database_instance.sql-db-instance.name
+  password = var.database_admin_password
+}
+
+
 resource "google_compute_network" "vpc_network" {
   name = "terraform-network"
 }
@@ -39,6 +69,9 @@ resource "google_compute_instance" "alpha_server" {
     }
   }
   metadata_startup_script = data.template_file.startup_script_server.rendered
+  service_account {
+    scopes = ["storage-ro"]
+  }
 }
 
 resource "google_compute_instance" "alpha-client-" {
@@ -84,6 +117,30 @@ resource "google_compute_firewall" "terraform-fw" {
   target_tags   = ["alphaclient", "alphaserver"]
   source_ranges = ["0.0.0.0/0"]
 }
+resource "google_storage_bucket" "script_bucket" {
+  name          = var.bucket_name
+  location      = "US"
+  force_destroy = true
+}
+
+resource "google_storage_bucket_object" "script_obj" {
+  name   = "server.py"
+  source = "server.py"
+  bucket = google_storage_bucket.script_bucket.name
+}
+
+resource "google_storage_bucket_object" "requirement_obj" {
+  name   = "requirement.txt"
+  source = "requirement.txt"
+  bucket = google_storage_bucket.script_bucket.name
+}
+
+resource "google_storage_bucket_object" "server_config_obj" {
+  name   = "server.config"
+  source = "server.config"
+  bucket = google_storage_bucket.script_bucket.name
+}
+
 output "ip_abc" {
   value = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
 }
@@ -107,34 +164,6 @@ data "template_file" "startup_script_server" {
   template = file("startup-server.sh")
   vars = {
     sql_ip = google_sql_database_instance.sql-db-instance.ip_address.0.ip_address
+    bucket_name = var.bucket_name
   }
-}
-
-resource "google_sql_database_instance" "sql-db-instance" {
-  provider         = google-beta
-  name             = "sql-db-instance"
-  database_version = "MYSQL_8_0"
-  root_password    = var.database_admin_password
-  deletion_protection = false
-  settings {
-    tier = "db-f1-micro"
-    ip_configuration {
-      ipv4_enabled = true
-      authorized_networks {
-        name = "all"
-        value = "0.0.0.0/0"
-      }
-    }
-  }
-}
-
-resource "google_sql_database" "fintax-mysql-db" {
-  name     = "fintax_mysql_db"
-  instance = google_sql_database_instance.sql-db-instance.name
-}
-
-resource "google_sql_user" "fintax-mysql-users" {
-  name     = "admin"
-  instance = google_sql_database_instance.sql-db-instance.name
-  password = var.database_admin_password
 }

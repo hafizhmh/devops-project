@@ -4,6 +4,7 @@ variable "credentials_file" {}
 
 variable "database_admin_password" {}
 
+variable "bucket_name" {}
 
 variable "region" {
   default = "us-central1"

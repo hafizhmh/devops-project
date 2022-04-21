@@ -3,14 +3,17 @@ from __future__ import print_function
 from flask import Flask, redirect, url_for, request, jsonify
 import mysql.connector
 from mysql.connector import errorcode
+import configparser
 
 app = Flask(__name__)
 with open('sql_ip.txt','r') as f:
   sql_ip = f.readline()
+config = configparser.ConfigParser()
+config.read('server.config')
 cnx = mysql.connector.connect(
   host=sql_ip,
   user="admin",
-  password="aaAA11!!",
+  password=config['sql_config']['password']
 )
 
 DB_NAME = 'fintax_mysql_db'
