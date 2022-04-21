@@ -5,3 +5,4 @@ venv/
 *.lock.*
 *.tfvars
 sql_ip.txt
+*.config
