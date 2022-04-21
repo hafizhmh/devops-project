@@ -79,7 +79,7 @@ resource "google_compute_firewall" "terraform-fw" {
   network = google_compute_network.vpc_network.name
   allow {
     protocol = "tcp"
-    ports    = ["22"]
+    ports    = ["22","80"]
   }
   target_tags   = ["alphaclient", "alphaserver"]
   source_ranges = ["0.0.0.0/0"]
@@ -88,27 +88,31 @@ output "ip_abc" {
   value = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
 }
 
+output "api_path" {
+  value = "GET http://${google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip}/hostname_count"
+}
+
 output "sql_ip" {
-  value = google_sql_database_instance.mysql-instance.ip_address.0.ip_address
+  value = google_sql_database_instance.fintax-mysql-instance.ip_address.0.ip_address
 }
 
 data "template_file" "startup_script_client" {
-  template = file("startup-clint.sh")
+  template = file("startup-client.sh")
   vars = {
-    echo_ip = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
+    alpha_server_ip = google_compute_instance.alpha_server.network_interface.0.access_config.0.nat_ip
   }
 }
 
 data "template_file" "startup_script_server" {
   template = file("startup-server.sh")
   vars = {
-    sql_ip = google_sql_database_instance.mysql-instance.ip_address.0.ip_address
+    sql_ip = google_sql_database_instance.fintax-mysql-instance.ip_address.0.ip_address
   }
 }
 
-resource "google_sql_database_instance" "mysql-instance" {
+resource "google_sql_database_instance" "fintax-mysql-instance" {
   provider         = google-beta
-  name             = "mysql-instance"
+  name             = "fintax-mysql-instance-1"
   database_version = "MYSQL_8_0"
   root_password    = var.database_admin_password
   deletion_protection = false
@@ -126,11 +130,11 @@ resource "google_sql_database_instance" "mysql-instance" {
 
 resource "google_sql_database" "fintax-mysql-db" {
   name     = "fintax_mysql_db"
-  instance = google_sql_database_instance.mysql-instance.name
+  instance = google_sql_database_instance.fintax-mysql-instance.name
 }
 
 resource "google_sql_user" "fintax-mysql-users" {
   name     = "admin"
-  instance = google_sql_database_instance.mysql-instance.name
+  instance = google_sql_database_instance.fintax-mysql-instance.name
   password = var.database_admin_password
 }
