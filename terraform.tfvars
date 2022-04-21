@@ -1,7 +1,7 @@
-project                 = "test-4d350"
-credentials_file        = "test-4d350-8baf9219e160.json"
-bucket_name             = "scriptbucket-devops-80"
+project                 = ""
+credentials_file        = ""
+bucket_name             = "scriptbucket-devops-"
 region                  = "us-west1"
 zone                    = "us-west1-a"
-database_admin_password = "aaAA11!!"
+database_admin_password = ""
 node_count              = 4
