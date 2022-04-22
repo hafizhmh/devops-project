@@ -52,7 +52,7 @@ Simple service to monitor the succesful ssh login count on client machines.
     The `terraform.tfvars` should look like this
     ![Variable file](/README/tvars.png)
 
-5. Open the `server.config` and fill the `password` filed with the same value as `database_admin_password` from the previous step.
+5. Open the `server.config` and fill the `password` field with the same value as `database_admin_password` from the previous step.
 ![Server config](/README/server_config.png)
 
 6. Run `terraform init`.
