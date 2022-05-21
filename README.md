@@ -14,7 +14,7 @@ Simple service to monitor the succesful ssh login count on client machines.
 ## First time GCP setup
 
 1. (Optional) Create a new GCP project.
-2. Note the project ID (note the project name), it will be used later
+2. Note the project ID (not the project name), it will be used later
 3. Click the navbar, choose `API & Services`>`Library`, then search and make sure these following services is enabled:
 
     - Compute Engine API
@@ -128,7 +128,7 @@ Simple service to monitor the succesful ssh login count on client machines.
 
     ![Response 4](/README/response_4.png)
 
-18. Idempotency proof: try to run `terraform apply`. There should be a prompt that says that no changes are neede.
+18. Idempotency proof: try to run `terraform apply`. There should be a prompt that says that no changes are needed.
 
     ![Idempotent](/README/idempotent.png)
 
