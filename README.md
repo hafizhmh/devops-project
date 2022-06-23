@@ -15,7 +15,7 @@ Simple service to monitor the succesful ssh login count on client machines.
 
 1. (Optional) Create a new GCP project.
 2. Note the project ID (not the project name), it will be used later
-3. Click the navbar, choose `API & Services`>`Library`, then search and make sure these following services is enabled:
+3. Click the navbar, choose `API & Services`>`Library`, then search and make sure these following services are enabled:
 
     - Compute Engine API
     - Cloud SQL
