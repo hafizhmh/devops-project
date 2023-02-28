@@ -2,6 +2,10 @@
 
 Simple service to monitor the succesful ssh login count on client machines.
 
+(This was my assignment in a job interview for infra team and this is my first attempt of using TF, so the directory structure is not very tidy :p.
+
+p.s. Hafizh, if you read this, try to implement the script using ansible and docker!)
+
 ## Demo
 
 [Video @ Google Drive](https://drive.google.com/file/d/12AKBUX-s3cQLLqDuXun5OA32-6ZepEuz/view?usp=sharing)
